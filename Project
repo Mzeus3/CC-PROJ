@@ -1,0 +1,1237 @@
+/*
+ Lab 14
+ By Saadat Hussain 01-134211-078
+ */
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+
+using namespace std;
+fstream file("078.txt");
+
+//Declarations:
+enum Saadat_TokenType
+{
+    END_OF_FILE, FOR, DIGIT, WHILE, DO, IF, ELSE, ELSE_IF, COUT, CIN, INT, CHAR,
+    DOUBLE, STRING,
+    NEW, NUM, VAR, FLOAT, INCREMENT, DECREMENT, EXPONENT, UNDER_SCORE,
+    PLUS, MINUS, DIVIDE, DIVIDE_EQUAL, MULTIPLY, MULTIPLY_EQUAL, PLUS_EQUAL,
+    MINUS_EQUAL, EQUAL, EQUAL_EQUAL, MODULUS, PIPE,
+    GREATER_THAN_EQUAL_TO, GREATER_THAN, HASH, AMPERSEND, END_L
+    , LESS_THAN, AND, OR, OSTREAM, ISTREAM, LESS_THAN_EQUAL_TO, NOT_EQUAL_TO,
+    EXCLAIMATION, DOLLAR_SIGN,
+    SEMI_COLON, COLON, OPEN_BRACES, COMMA, QUESTION_MARK, AT_THE_RATE,
+    CLOSE_BRACES, OPEN_BRACKET, CLOSE_BRACKET, OPEN_SQUARE_BRACKET,
+    CLOSE_SQUARE_BRCKET,
+    EXIT, RETURN, IDENTIFIER, BEGIN, END, EMPTY
+};
+enum NodeKind { OPERATOR, CONSTANT, VARIABLE };
+enum StatementKind { IFF, ASSIGNMENTT, DOO, WHILEE };
+enum NodeKind2 { STATEMENTT, EXPRESSIONN };
+struct Saadat_Tokenization
+{
+    string Token;
+    string TokenType;
+    Saadat_TokenType TokenName;
+};
+struct TreeNode
+{
+    NodeKind Kind;
+    int Value;
+    string Name;
+    Saadat_TokenType Parent;
+    TreeNode* LeftChild;
+    TreeNode* RightChild;
+    TreeNode* MiddleChild;
+    TreeNode* Sibling;
+    NodeKind2 Node;
+    StatementKind Statement;
+    NodeKind Expression;
+    Saadat_TokenType Token1;
+
+};
+Saadat_Tokenization Lexical();
+Saadat_Tokenization Token;
+Saadat_Tokenization Current;
+vector<Saadat_Tokenization> SymbolTable;
+void MakeEntry(Saadat_Tokenization);
+void Search();
+bool Saadat1();
+bool Saadat2();
+bool Saadat3();
+bool Saadat4();
+bool Saadat5();
+bool Saadat6();
+bool Saadat7();
+bool Saadat8();
+bool Saadat_Program();
+bool Saadat_StatementList();
+bool Saadat_Statement();
+bool Saadat_Assignment();
+bool Saadat_Expression();
+bool Saadat_IF_Statement();
+bool Saadat_DO_WHILE_Statement();
+bool Saadat_WHILE_Statement();
+TreeNode* Saadat_Tree_Statement();
+TreeNode* Saadat_Tree_StatementList();
+bool Saadat_Tree_Program();
+bool Flag = false;
+TreeNode* Saadat_Tree_Expression();
+TreeNode* Saadat_Tree_Term();
+TreeNode* Saadat_Tree_Factor();
+void Saadat_DisplayTree(TreeNode* node);
+
+//Driver Code:
+int main()
+{
+    Saadat_Tree_Program();
+    return 0;
+}
+
+void MakeEntry(Saadat_Tokenization obj)
+{
+    string check = obj.TokenType;
+    if (check == "ID")
+    {
+        SymbolTable.push_back(obj);
+    }
+}
+void Search()
+{
+    for (int i = 0; i < SymbolTable.size(); i++)
+    {
+        // Check if the picked element is already printed
+        int j;
+        for (j = 0; j < i; j++)
+            if (SymbolTable[i].Token == SymbolTable[j].Token)
+                break;
+        // If not printed earlier, then print it
+        if (i == j)
+            cout << "Token: " << SymbolTable[i].Token << " \t " << "Token Type: "
+            <<
+            SymbolTable[i].TokenType << " \t\t " << "Token Number: " << j << endl;
+    }
+}
+Saadat_Tokenization Get_Token()
+{
+    if (Flag == false)
+    {
+        Current = Lexical();
+        return Current;
+    }
+    else
+    {
+        Flag = false;
+        return Current;
+    }
+}
+void Unget_Token()
+{
+    Flag = true;
+}
+
+//Recursive Descent Parser
+bool Saadat1()
+{
+    do
+    {
+        if (!Saadat2())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == OR);
+    Unget_Token();
+    return true;
+}
+bool Saadat2()
+{
+    do
+    {
+        if (!Saadat3())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == AND);
+    Unget_Token();
+    return true;
+}
+bool Saadat3()
+{
+    do
+    {
+        if (!Saadat4())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == EQUAL_EQUAL || Token.TokenName == NOT_EQUAL_TO);
+    Unget_Token();
+    return true;
+}
+bool Saadat4()
+{
+    do
+    {
+        if (!Saadat5())
+            return false;
+        Token = Get_Token();
+    } while (Token.TokenName == GREATER_THAN || Token.TokenName ==
+        GREATER_THAN_EQUAL_TO ||
+        Token.TokenName == LESS_THAN || Token.TokenName == LESS_THAN_EQUAL_TO);
+    Unget_Token();
+    return true;
+}
+bool Saadat5()
+{
+    do
+    {
+        if (!Saadat6())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == OSTREAM || Token.TokenName == ISTREAM);
+    Unget_Token();
+    return true;
+}
+bool Saadat6()
+{
+    do
+    {
+        if (!Saadat7())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == PLUS || Token.TokenName == MINUS);
+    Unget_Token();
+    return true;
+}
+bool Saadat7()
+{
+    do
+    {
+        if (!Saadat8())
+        {
+            return false;
+        }
+        Token = Get_Token();
+    } while (Token.TokenName == MULTIPLY || Token.TokenName == DIVIDE ||
+        Token.TokenName == MODULUS);
+    Unget_Token();
+    return true;
+}
+bool Saadat8()
+{
+    Token = Get_Token();
+    if (Token.TokenName == IDENTIFIER || Token.TokenName == DIGIT)
+    {
+        return true;
+    }
+    else if (Token.TokenName == OPEN_BRACKET)
+    {
+        if (Saadat1())
+        {
+            Token = Get_Token();
+            if (Token.TokenName == CLOSE_BRACKET)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Saadat_Program()
+{
+    Token = Get_Token();
+    if (Token.TokenName == BEGIN)
+    {
+        if (Saadat_StatementList())
+        {
+            Token = Get_Token();
+            if (Token.TokenName == END)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+bool Saadat_StatementList()
+{
+    if (Saadat_Statement())
+    {
+        while (true)
+        {
+            Token = Get_Token();
+            if (Token.TokenName == IF || Token.TokenName == ELSE || Token.TokenName ==
+                DO || Token.TokenName == WHILE || Token.TokenName == IDENTIFIER)
+            {
+                Unget_Token();
+                if (!Saadat_Statement())
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                Unget_Token();
+                break;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+bool Saadat_Statement()
+{
+    Token = Get_Token();
+    if (Token.TokenName == IDENTIFIER)
+    {
+        Unget_Token();
+        return Saadat_Assignment();
+    }
+    if (Token.TokenName == IF)
+    {
+        Unget_Token();
+        return Saadat_IF_Statement();
+    }
+    if (Token.TokenName == DO)
+    {
+        Unget_Token();
+        return Saadat_DO_WHILE_Statement();
+    }
+    if (Token.TokenName == WHILE)
+    {
+        Unget_Token();
+        return Saadat_WHILE_Statement();
+    }
+    return false;
+}
+bool Saadat_Assignment()
+{
+    Token = Get_Token();
+    if (Token.TokenName == IDENTIFIER)
+    {
+        Token = Get_Token();
+        if (Token.TokenName == EQUAL || Token.TokenName == PLUS_EQUAL ||
+            Token.TokenName == MINUS_EQUAL || Token.TokenName == MULTIPLY_EQUAL || Token.TokenName
+            == DIVIDE_EQUAL)
+        {
+            if (Saadat_Expression())
+            {
+                Token = Get_Token();
+                if (Token.TokenName == SEMI_COLON)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+bool Saadat_Expression()
+{
+    return Saadat1();
+}
+bool Saadat_IF_Statement()
+{
+    Token = Get_Token();
+    if (Token.TokenName == IF)
+    {
+        Token = Get_Token();
+        if (Token.TokenName == OPEN_BRACKET)
+        {
+            if (!Saadat_Expression())
+            {
+                return false;
+            }
+            Token = Get_Token();
+            if (Token.TokenName == CLOSE_BRACKET)
+            {
+                Token = Get_Token();
+                if (Token.TokenName == OPEN_BRACES)
+                {
+                    if (!Saadat_StatementList())
+                    {
+                        return false;
+                    }
+                    Token = Get_Token();
+                    if (Token.TokenName == CLOSE_BRACES)
+                    {
+                        Token = Get_Token();
+                        if (Token.TokenName == ELSE)
+                        {
+                            Token = Get_Token();
+                            if (Token.TokenName == IF)
+                            {
+                                Unget_Token();
+                                if (Saadat_IF_Statement())
+                                    return true;
+                            }
+                            else if (Token.TokenName == OPEN_BRACES)
+                            {
+                                if (!Saadat_StatementList())
+                                {
+                                    return false;
+                                }
+                                Token = Get_Token();
+                                if (Token.TokenName == CLOSE_BRACES)
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Unget_Token();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+bool Saadat_DO_WHILE_Statement()
+{
+    Token = Get_Token();
+    if (Token.TokenName == DO)
+    {
+        Token = Get_Token();
+        if (Token.TokenName == OPEN_BRACES)
+        {
+            if (Saadat_StatementList())
+            {
+                Token = Get_Token();
+                if (Token.TokenName == CLOSE_BRACES)
+                {
+                    Token = Get_Token();
+                    if (Token.TokenName == WHILE)
+                    {
+                        Token = Get_Token();
+                        if (Token.TokenName == OPEN_BRACKET)
+                        {
+                            if (Saadat_Expression())
+                            {
+                                Token = Get_Token();
+                                if (Token.TokenName == CLOSE_BRACKET)
+                                {
+                                    Token = Get_Token();
+                                    if (Token.TokenName == SEMI_COLON)
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+bool Saadat_WHILE_Statement()
+{
+    Token = Get_Token();
+    if (Token.TokenName == WHILE)
+    {
+        Token = Get_Token();
+        if (Token.TokenName == OPEN_BRACKET)
+        {
+            if (Saadat_Expression())
+            {
+                Token = Get_Token();
+                if (Token.TokenName == CLOSE_BRACKET)
+                {
+                    Token = Get_Token();
+                    if (Token.TokenName == OPEN_BRACES)
+                    {
+                        if (Saadat_StatementList())
+                        {
+                            Token = Get_Token();
+                            if (Token.TokenName == CLOSE_BRACES)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+TreeNode* Saadat_Tree_Expression()
+{
+    TreeNode* t, * p = NULL;
+    int flage = 0;
+    do
+    {
+        t = Saadat_Tree_Term();
+        if (flage)
+        {
+            p->RightChild = t;
+            flage = 0;
+            t = p;
+        }
+        Token = Get_Token();
+        if (Token.TokenName == PLUS || Token.TokenName == MINUS)
+        {
+            p = new TreeNode;
+            p->Kind = OPERATOR;
+            p->Parent = Token.TokenName;
+            p->Name = Token.Token;
+            p->LeftChild = t;
+            flage = 1;
+        }
+    } while (Token.TokenName == PLUS || Token.TokenName == MINUS);
+    Unget_Token();
+    return (t);
+}
+TreeNode* Saadat_Tree_Term()
+{
+    TreeNode* t, * p = NULL;
+    int flage = 0;
+    do
+    {
+        t = Saadat_Tree_Factor();
+        if (flage)
+        {
+            p->RightChild = t;
+            flage = 0;
+            t = p;
+        }
+        Token = Get_Token();
+        if (Token.TokenName == MULTIPLY || Token.TokenName == DIVIDE)
+        {
+            p = new TreeNode;
+            p->Kind = OPERATOR;
+            p->Name = Token.Token;
+            p->LeftChild = t;
+            flage = 1;
+        }
+    } while (Token.TokenName == MULTIPLY || Token.TokenName == DIVIDE);
+    Unget_Token();
+    return (t);
+}
+TreeNode* Saadat_Tree_Factor()
+{
+    TreeNode* t = NULL;
+    Token = Get_Token();
+    switch (Token.TokenName)
+    {
+    case DIGIT:
+        t = new TreeNode();
+        t->Kind = CONSTANT;
+        t->Value = stoi(Token.Token);
+        t->Name = Token.Token;
+        //t->opr=NUL;
+        t->LeftChild = NULL;
+        t->RightChild = NULL;
+        return(t);
+        break;
+    case IDENTIFIER:
+        t = new TreeNode();
+        t->Kind = VARIABLE;
+        // t->value=atoi(Token.Token);
+        t->Name = Token.Token;
+        //t->opr=NUL;
+        t->LeftChild = NULL;
+        t->RightChild = NULL;
+        return(t);
+        break;
+    case OPEN_BRACKET:
+        t = Saadat_Tree_Expression();
+        Token = Get_Token();
+        if (Token.TokenName == CLOSE_BRACKET)
+        {
+            return t;
+        }
+        break;
+    default:
+        break;
+    }
+    return t;
+}
+void Saadat_DisplayTree(TreeNode* node)
+{
+    if (node == nullptr)
+    {
+        return;
+    }
+    cout << "Node: ";
+    if (node->Kind == CONSTANT)
+    {
+        cout << "Constant ";
+        cout << "\nValue: " << node->Value;
+    }
+    else if (node->Kind == VARIABLE)
+    {
+        cout << "Identifier " << node->Name;
+    }
+    else if (node->Kind == OPERATOR)
+    {
+        cout << "Operator" << endl << "Value: ";
+        if (node->Parent == PLUS)
+        {
+            cout << "+";
+        }
+        else if (node->Parent == MINUS)
+        {
+            cout << "-";
+        }
+        else if (node->Parent == MULTIPLY)
+        {
+            cout << "*";
+        }
+        else if (node->Parent == DIVIDE)
+        {
+            cout << "/";
+        }
+        else if (node->Parent == EQUAL)
+        {
+            cout << "=";
+        }
+    }
+    cout << endl;
+    cout << "Left Child: ";
+    if (node->LeftChild != nullptr)
+    {
+        cout << node->LeftChild->Name; // Print the value of the left child
+    }
+    else
+    {
+        cout << "NULL";
+    }
+    cout << endl;
+    cout << "Right Child: ";
+    if (node->RightChild != nullptr)
+    {
+        cout << node->RightChild->Name; // Print the value of the right child
+    }
+    else
+    {
+        cout << "NULL";
+    }
+    cout << endl;
+    cout << endl;
+    // Display left and right subtrees
+    Saadat_DisplayTree(node->LeftChild);
+    Saadat_DisplayTree(node->RightChild);
+}
+TreeNode* Saadat_Tree_StatementList()  // statement list
+{
+    TreeNode* stree;
+    TreeNode* prevtree = nullptr;
+    TreeNode* stmttree = nullptr;
+
+    if ((prevtree = Saadat_Tree_Statement()))
+    {
+        stmttree = prevtree;
+        stmttree->Sibling = nullptr;
+        do
+        {
+            prevtree->Sibling = NULL;
+            Token = Get_Token();
+            if (Token.TokenName == IF || Token.TokenName == DO || Token.TokenName == IDENTIFIER)
+            {
+                Unget_Token();
+                if ((stree = Saadat_Tree_Statement()) == NULL)   // NOT TRUE
+                    return NULL;
+
+                stree->Sibling = NULL;
+                prevtree->Sibling = stree;
+                prevtree = stree;
+            }
+            else
+            {
+                Unget_Token();
+                break;
+            }
+
+        } while (1);
+        //return true; // if , not, uid not equal then may be else
+        return (stmttree);
+    }
+    return NULL; //otherwise false
+
+}
+TreeNode* Saadat_Tree_Statement()
+{
+    TreeNode* t1 = nullptr;
+    TreeNode* t2 = nullptr;
+    TreeNode* t3 = nullptr;
+    TreeNode* tree = nullptr;
+    Token = Get_Token();
+    if (Token.TokenName == IDENTIFIER)
+    {
+
+        t1 = new TreeNode;
+        t1->Kind = VARIABLE;
+        t1->Name = Token.Token;
+        t1->LeftChild = nullptr;
+        t1->RightChild = nullptr;
+
+        Token = Get_Token();
+        if (Token.TokenName == EQUAL)
+        {
+            t2 = new TreeNode;
+            t2->Kind = OPERATOR;
+            t2->Name = Token.Token;
+            t2->LeftChild = nullptr;
+            t2->RightChild = nullptr;
+
+            t1->LeftChild = t2;
+
+            if ((t3 = Saadat_Tree_Expression()))
+            {
+                t2->LeftChild = t3;
+                tree = t1;
+                Token = Get_Token();
+                if (Token.TokenName == SEMI_COLON)
+                    return  (tree);
+            }
+        }
+    }
+    return nullptr;
+}
+bool Saadat_Tree_Program()
+{
+    TreeNode* fulltree;
+    Token = Get_Token();
+    if (Token.TokenName == BEGIN)
+    {
+        if ((fulltree = Saadat_Tree_StatementList()) != NULL)
+        {
+            Saadat_DisplayTree(fulltree);
+            Token = Get_Token();
+            if (Token.TokenName == END)
+                return true;
+        }
+    }
+    return false;
+
+}
+Saadat_Tokenization Lexical()
+{
+    Saadat_Tokenization S;
+    char input;
+    char next;
+    string WordToken;
+    while (!file.eof())
+    {
+        file.get(input);
+        next = file.peek();
+        if (isspace(input))
+        {
+            continue;
+        }
+        if (input == '(')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = OPEN_BRACKET;
+            return S;
+        }
+        else if (input == ')')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = CLOSE_BRACKET;
+            return S;
+        }
+        else if (input == '[')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = OPEN_SQUARE_BRACKET;
+            return S;
+        }
+        else if (input == ']')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = OPEN_SQUARE_BRACKET;
+            return S;
+        }
+        else if (input == '{')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = OPEN_BRACES;
+            return S;
+        }
+        else if (input == '}')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = CLOSE_BRACES;
+            return S;
+        }
+        else if (input == '!')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "!=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = NOT_EQUAL_TO;
+                return S;
+            }
+            file.putback(input);
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = EXCLAIMATION;
+            return S;
+        }
+        else if (input == '#')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = HASH;
+            return S;
+        }
+        else if (input == '$')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = DOLLAR_SIGN;
+        }
+        else if (input == '%')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = MODULUS;
+            return S;
+        }
+        else if (input == '&')
+        {
+            file.get(input);
+            if (input == '&')
+            {
+                S.Token = "&&";
+                S.TokenType = "DoubleOp";
+                S.TokenName = AND;
+                return S;
+            }
+            file.putback(input);
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = AMPERSEND;
+            return S;
+        }
+        else if (input == '|')
+        {
+            file.get(input);
+            if (input == '|')
+            {
+                S.Token = "||";
+                S.TokenType = "DoubleOp";
+                S.TokenName = OR;
+                return S;
+            }
+            file.putback(input);
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = PIPE;
+            return S;
+        }
+        else if (input == '*')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "*=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = MULTIPLY_EQUAL;
+                return S;
+            }
+            file.putback(input);
+            S.Token = "*";
+            S.TokenType = "Operator";
+            S.TokenName = MULTIPLY;
+            return S;
+        }
+        else if (input == '+')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "+=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = PLUS_EQUAL;
+                return S;
+            }
+            else if (input == '+')
+            {
+                S.Token = "++";
+                S.TokenType = "DoubleOp";
+                S.TokenName = INCREMENT;
+                return S;
+            }
+            file.putback(input);
+            S.Token = "+";
+            S.TokenType = "Operator";
+            S.TokenName = PLUS;
+            return S;
+        }
+        else if (input == ',')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = COMMA;
+            return S;
+        }
+        else if (input == '-')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "-=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = MINUS_EQUAL;
+                return S;
+            }
+            else if (input == '-')
+            {
+                S.Token = "--";
+                S.TokenType = "DoubleOp";
+                S.TokenName = DECREMENT;
+                return S;
+            }
+            file.putback(input);
+            S.Token = "-";
+            S.TokenType = "Special";
+            S.TokenName = MINUS;
+            return S;
+        }
+        else if (input == '/')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "/=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = DIVIDE_EQUAL;
+                return S;
+            }
+            else if (input == '/')
+            {
+                while (input != '\n')
+                {
+                    file.get(input);
+                }
+                break;
+            }
+            else if (input == '*')
+            {
+                file.get(input);
+                while ((input != '*') && (next != '/'))
+                {
+                    if (file.eof())
+                    {
+                        break;
+                    }
+                    file.get(input);
+                }
+                file.get(input);
+                break;
+            }
+            file.putback(input);
+            S.Token = "/";
+            S.TokenType = "Operator";
+            S.TokenName = DIVIDE;
+        }
+        else if (input == ':')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = COLON;
+            return S;
+        }
+        else if (input == ';')
+        {
+            S.Token = input;
+            S.TokenType = "Special";
+            S.TokenName = SEMI_COLON;
+            return S;
+        }
+        else if (input == '<')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "<=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = LESS_THAN_EQUAL_TO;
+                return S;
+            }
+            else if (input == '<')
+            {
+                S.Token = "<<";
+                S.TokenType = "DoubleOp";
+                S.TokenName = OSTREAM;
+                return S;
+            }
+            file.putback(input);
+            S.Token = "<";
+            S.TokenType = "Operator";
+            S.TokenName = LESS_THAN;
+            return S;
+        }
+        else if (input == '>')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = ">=";
+                S.TokenType = "DoubleOp";
+                S.TokenName = GREATER_THAN_EQUAL_TO;
+                return S;
+            }
+            else if (input == '>')
+            {
+                S.Token = ">>";
+                S.TokenType = "DoubleOp";
+                S.TokenName = ISTREAM;
+                return S;
+            }
+            file.putback(input);
+            S.Token = ">";
+            S.TokenType = "Operator";
+            S.TokenName = GREATER_THAN;
+            return S;
+        }
+        else if (input == '=')
+        {
+            file.get(input);
+            if (input == '=')
+            {
+                S.Token = "==";
+                S.TokenType = "DoubleOp";
+                S.TokenName = EQUAL_EQUAL;
+                return S;
+            }
+            file.putback(input);
+            S.Token = "=";
+            S.TokenType = "Operator";
+            S.TokenName = EQUAL;
+            return S;
+        }
+        else if (input == '?')
+        {
+            S.Token = "?";
+            S.TokenType = "Special";
+            S.TokenName = QUESTION_MARK;
+            return S;
+        }
+        else if (input == '@')
+        {
+            S.Token = "@";
+            S.TokenType = "Special";
+            S.TokenName = AT_THE_RATE;
+            return S;
+        }
+        else if (input == '^')
+        {
+            S.Token = "^";
+            S.TokenType = "Special";
+            S.TokenName = EXPONENT;
+            return S;
+        }
+        else if (input == '_')
+        {
+            S.Token = "_";
+            S.TokenType = "Special";
+            S.TokenName = UNDER_SCORE;
+            return S;
+        }
+        else if (isdigit(input))
+        {
+            while (isdigit(input))
+            {
+                WordToken += input;
+                file.get(input);
+            }
+            file.putback(input);
+            S.Token = WordToken;
+            S.TokenType = "Digit";
+            S.TokenName = DIGIT;
+            return S;
+        }
+        else if (isalpha(input) || input == '_')
+        {
+            WordToken += input;
+            file.get(input);
+            while (isalpha(input) || input == '_')
+            {
+                WordToken += input;
+                file.get(input);
+            }
+            file.putback(input);
+            if (WordToken == "if")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = IF;
+                return S;
+            }
+            else if (WordToken == "else")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = ELSE;
+                return S;
+            }
+            else if (WordToken == "else if")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = ELSE_IF;
+                return S;
+            }
+            else if (WordToken == "endl")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = END_L;
+                return S;
+            }
+            else if (WordToken == "for")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = FOR;
+                return S;
+            }
+            else if (WordToken == "while")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = WHILE;
+                return S;
+            }
+            else if (WordToken == "do")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = DO;
+                return S;
+            }
+            else if (WordToken == "exit")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = EXIT;
+                return S;
+            }
+            else if (WordToken == "int")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = INT;
+                return S;
+            }
+            else if (WordToken == "return")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = RETURN;
+                return S;
+            }
+            else if (WordToken == "cout")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = COUT;
+                return S;
+            }
+            else if (WordToken == "cin")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = CIN;
+                return S;
+            }
+            else if (WordToken == "char")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = CHAR;
+                return S;
+            }
+            else if (WordToken == "string")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = STRING;
+                return S;
+            }
+            else if (WordToken == "double")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = DOUBLE;
+                return S;
+            }
+            else if (WordToken == "float")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = FLOAT;
+                return S;
+            }
+            else if (WordToken == "BEGIN")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = BEGIN;
+                return S;
+            }
+            else if (WordToken == "END")
+            {
+                S.Token = WordToken;
+                S.TokenType = "Keyword";
+                S.TokenName = END;
+                return S;
+            }
+            else
+            {
+                S.Token = WordToken;
+                S.TokenType = "ID";
+                S.TokenName = IDENTIFIER;
+                return S;
+            }
+        }
+    }
+    S.TokenType = "EMPTY";
+    S.TokenName = EMPTY;
+    return S;
+}
